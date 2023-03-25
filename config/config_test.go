@@ -15,6 +15,22 @@ func TestNewConfig(t *testing.T) {
 	if !config.MoveSourceFiles {
 		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for MoveSourcefiles: %v", config.MoveSourceFiles))
 	}
+
+	if config.DestinationFolder != "~/tmp" {
+		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for DestinationFolder: %s", config.DestinationFolder))
+	}
+	
+	if config.FileExtensionFilter != "*.txt" {
+		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for FileExtensionFilter: %s", config.FileExtensionFilter))
+	}
+
+	if config.ResultFolderPattern != "YYYY_MMDD" {
+		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for ResultFolderPattern: %s", config.ResultFolderPattern))
+	}
+
+	if config.SourceFolder != "~/tmp" {
+		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for SourceFolder: %s", config.SourceFolder))
+	}
 }
 
 func TestCreateConfigFile(t *testing.T) {
