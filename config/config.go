@@ -54,3 +54,14 @@ func NewConfig() *Config {
 		SourceFolder:        workingFolder,
 	}
 }
+
+func (config *Config) ToString() string {
+	returnString := "Configuration:\n"
+	returnString += fmt.Sprintf("\tDestinationFolder:\t\t%s\n", config.DestinationFolder)
+	returnString += fmt.Sprintf("\tFileExtensionFilter:\t\t%s\n", config.FileExtensionFilter)
+	returnString += fmt.Sprintf("\tMoveSourceFiles:\t\t%v\n", config.MoveSourceFiles)
+	returnString += fmt.Sprintf("\tResultFolderPattern:\t\t%s\n", config.ResultFolderPattern)
+	returnString += fmt.Sprintf("\tSourceFolder:\t\t\t%s\n", config.SourceFolder)
+
+	return returnString 
+}
