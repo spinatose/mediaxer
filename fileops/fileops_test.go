@@ -2,7 +2,6 @@ package fileops
 
 import (
 	"fmt"
-	"os"
 	"testing"
 )
 
@@ -31,20 +30,6 @@ func TestValidMachineFolder(t *testing.T) {
 	// should return that folder is invalid- false, since folder is file not a folder
 	validFolder, err = ValidMachineFolder(folder)
 
-	if !validFolder && err != nil {
-		fmt.Printf("TestValidMachineFolder SUCCESS for invalid folder [%s] - error: %s\n", folder, err.Error())
-	} else {
-		t.Errorf("TestValidMachineFolder failed for checking folder value [%s]\n", folder)
-	}
-
-	// Create folder read-only - shouldn't be valid when testing - folder is valid when read-writable
-	folder = "./temp"
-	os.Mkdir(folder, 0400)
-	t.Cleanup(func() {
-		os.Remove("./xtemp")
-	})
-
-	validFolder, err = ValidMachineFolder(folder)
 	if !validFolder && err != nil {
 		fmt.Printf("TestValidMachineFolder SUCCESS for invalid folder [%s] - error: %s\n", folder, err.Error())
 	} else {

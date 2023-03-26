@@ -1,12 +1,8 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"os"
-	"time"
-	"spinatose.com/mediaxer/config"
-	"spinatose.com/mediaxer/fileops" 
+	"spinatose.com/mediaxer/cmd"
 )
 
 // TODO: eventually add command line args to filter certain files
@@ -17,60 +13,8 @@ import (
 // TODO: possibly create file streaming server to accept incoming "files" stream over network and save to target
 // TODO: create GUI interface
 
-// Configuration file
-const configFile string = "config.json"
-
 func main() {
-	fmt.Println("      Welcome to mediAxer - file organizer!")
-	fmt.Println("¡Bienvenido a mediAxer - organizador de archivos!")
-	fmt.Println() ;
-
-	// arg at index 0 is the executable name
-	args := os.Args[1:]
-	
-	if len(args) == 1 && args[0] == "-help" {
-		fmt.Println("Usage: mediaxer <folder>")
-		fmt.Println("Example: mediaxer '/users/bob/tmp/'")
-	} else {
-		if len(args) != 1 {
-			fmt.Println("An accessible, valid folder must be supplied--  type '-help' for usage")
-			return 
-		} else {
-			folder := args[0]
-			validFolder, err := fileops.ValidMachineFolder(folder)
-
-			if validFolder {
-				fmt.Printf("Folder [%s] is a valid folder\n", folder)
-			} else {
-
-				fmt.Printf("Folder [%s] not a valid folder- error: %s\n", folder, err.Error()) 
-			} 
-		}
+	if err := cmd.Execute(); err != nil {
+		fmt.Println(err)
 	}
-
-	config := configuration.NewConfig()
-
-	// Check for config file existence
-	if _, err := os.Stat(configFile); errors.Is(err, os.ErrNotExist) {
-		// Config file doesn't exist, create one with default values.
-		err = configuration.CreateConfigFile(config, configFile)
-
-		if err != nil {
-			fmt.Printf("Error creating default configuration file [%s]- error: %s\n", configFile, err.Error())
-			return 
-		}
-	} else {
-		config, err = configuration.LoadConfigFromJsonFile(configFile)
-
-		if err != nil {
-			fmt.Printf("Error attempting to load configuration file [%s]- error: %s\n", configFile, err.Error())
-			return 
-		}
-	}
-
-	fmt.Print("configuration loaded...\n")
-	fmt.Println(config.ToString())
-
-	fmt.Println()
-	fmt.Println(time.Now().Format("Mon Jan 2 15:04:05 MST 2006"))
 }
