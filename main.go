@@ -37,8 +37,14 @@ func main() {
 			return 
 		} else {
 			folder := args[0]
-			fmt.Printf("Folder value provided from command line: %s\n", folder);
-			fmt.Printf("Folder value provided is directory and is accessible? %t\n", fileops.ValidMachineFolder(folder)) 
+			validFolder, err := fileops.ValidMachineFolder(folder)
+
+			if validFolder {
+				fmt.Printf("Folder [%s] is a valid folder\n", folder)
+			} else {
+
+				fmt.Printf("Folder [%s] not a valid folder- error: %s\n", folder, err.Error()) 
+			} 
 		}
 	}
 
