@@ -21,7 +21,7 @@
             "mode": "debug",
             "program": "${workspaceFolder}/main.go",
             "args": [
-              "--source=~/temp"
+              "--source=/Users/scot/tmp"
             ]
           },
     ]
