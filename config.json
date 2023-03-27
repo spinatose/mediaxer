@@ -1,1 +1,1 @@
-{"destinationFolder":"~/tmp","fileExtensionFilter":"*.txt","moveSourceFiles":true,"resultFolderPattern":"YYYY_MMDD","sourceFolder":"~/tmp"}
+{"destinationFolder":"","fileExtensionFilter":"*.txt","moveSourceFiles":true,"resultFolderPattern":"YYYY_MMDD","sourceFolder":"."}

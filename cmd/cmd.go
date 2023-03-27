@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"spinatose.com/mediaxer/config"
-	"spinatose.com/mediaxer/fileops" 
+	"spinatose.com/mediaxer/fileops"
 )
 
 // Configuration file
@@ -26,7 +28,8 @@ func Execute() error {
 
 func init() {
 	fs := rootCmd.PersistentFlags()
-	fs.StringP("source", "s", "~/tmp", "specify source folder")
+	fs.StringP("source", "s", "", "specify source folder")
+	fs.StringP("dest", "d", "", "specify destination folder")
 	//fs.BoolP("debug", "d", false, "enable debug profiling")
 
 	if err := viper.BindPFlags(fs); err != nil {
@@ -38,30 +41,33 @@ func runApp(cmd *cobra.Command, args []string) error {
 	fmt.Println("      Welcome to mediAxer - file organizer!")
 	fmt.Println("¡Bienvenido a mediAxer - organizador de archivos!")
 	fmt.Println() ;
-	fmt.Printf("(-_-) received command line arguments: %s\n", args)
-	// arg at index 0 is the executable name
-	// args = args[1:]
-	folder := viper.GetString("source")
 
-	// if len(args) == 1 && args[0] == "-help" {
-	// 	fmt.Println("Usage: mediaxer <folder>")
-	// 	fmt.Println("Example: mediaxer '/users/bob/tmp/'")
-	// } else {
-		if folder == "" {
-			fmt.Println("An accessible, valid folder must be supplied--  type '-help' for usage")
-			return nil
-		} else {
-			//folder := args[0]
-			validFolder, err := fileops.ValidMachineFolder(folder)
+	// Get any passed override arguments
+	sourceFolder := viper.GetString("source")
+	destFolder := viper.GetString("dest")
+	
+	// Get config or create default and load it.
+	config, err := getAppConfig()
+	if err != nil {
+		return err
+	}
 
-			if validFolder {
-				fmt.Printf("Folder [%s] is a valid folder\n", folder)
-			} else {
-				fmt.Printf("Folder [%s] not a valid folder- error: %s\n", folder, err.Error()) 
-			} 
-		}
-	//}
+	err = resolveAppArgsConfig(config, sourceFolder, destFolder)
+	if err != nil {
+		fmt.Printf("Unable to validate/resolve settings loaded for applicaion- error: %s", err.Error())
+		return err
+	}
 
+	fmt.Print("configuration loaded...\n")
+	fmt.Println(config.ToString())
+
+	fmt.Println()
+	fmt.Println(time.Now().Format("Mon Jan 2 15:04:05 MST 2006"))
+
+	return nil
+}
+
+func getAppConfig() (*configuration.Config, error) {
 	config := configuration.NewConfig()
 
 	// Check for config file existence
@@ -71,22 +77,67 @@ func runApp(cmd *cobra.Command, args []string) error {
 
 		if err != nil {
 			fmt.Printf("Error creating default configuration file [%s]- error: %s\n", configFile, err.Error())
-			return err
+			return nil, err
 		}
 	} else {
 		config, err = configuration.LoadConfigFromJsonFile(configFile)
 
 		if err != nil {
 			fmt.Printf("Error attempting to load configuration file [%s]- error: %s\n", configFile, err.Error())
-			return err
+			return nil, err
 		}
 	}
 
-	fmt.Print("configuration loaded...\n")
-	fmt.Println(config.ToString())
+	return config, nil
+}
 
-	fmt.Println()
-	fmt.Println(time.Now().Format("Mon Jan 2 15:04:05 MST 2006"))
+func isArgProvided(name string) bool {
+	name = strings.ToUpper(name)
+    found := false
+	args := os.Args[1:]
+    
+	for _, arg := range args {
+		if strings.Contains(strings.ToUpper(arg), name) {
+			found = true 
+		}
+	}
+
+    return found
+}
+
+func resolveAppArgsConfig (config *configuration.Config, sourceFolder string, destFolder string) error {
+	// Override config settings with passed in arguments
+	if isArgProvided("--source") || isArgProvided("-s") {
+		config.SourceFolder = sourceFolder
+	}
+	
+	if isArgProvided("--dest") || isArgProvided("-d") {
+		config.DestinationFolder = destFolder
+	}
+	
+	if config.SourceFolder == "" {
+		return errors.New("an accessible, valid source folder must be supplied--  type '-help' for usage")
+	} else {
+		validFolder, err := fileops.ValidMachineFolder(config.SourceFolder)
+
+		if validFolder {
+			fmt.Printf("SourceFolder [%s] is a valid folder\n", config.SourceFolder)
+		} else {
+			return fmt.Errorf("sourcefolder [%s] not a valid folder- error: %s", config.SourceFolder, err.Error()) 
+		} 
+	}
+
+	if config.DestinationFolder == "" {
+		config.DestinationFolder = config.SourceFolder
+	} else {
+		validFolder, err := fileops.ValidMachineFolder(config.DestinationFolder)
+
+		if validFolder {
+			fmt.Printf("DestinationFolder [%s] is a valid folder\n", config.DestinationFolder)
+		} else {
+			return fmt.Errorf("destinationfolder [%s] not a valid folder- error: %s", config.DestinationFolder, err.Error()) 
+		} 
+	}
 
 	return nil
 }
