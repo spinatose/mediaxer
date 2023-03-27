@@ -14,7 +14,10 @@ import (
 )
 
 // Configuration file
-const configFile string = "config.json"
+const (
+	configFile string = "config.json"
+	processFolder string = "./process"
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "mediaxer",
@@ -42,6 +45,14 @@ func runApp(cmd *cobra.Command, args []string) error {
 	fmt.Println("¡Bienvenido a mediAxer - organizador de archivos!")
 	fmt.Println() ;
 
+	// Check for local processed folder, if not exists- create
+	err := ensureLocalProcessFolderExists()
+	if err != nil {
+		fmt.Printf("Unable to ensure/create local 'processed' folder- error: %s", err.Error())
+		return err
+	}
+
+
 	// Get any passed override arguments
 	sourceFolder := viper.GetString("source")
 	destFolder := viper.GetString("dest")
@@ -63,6 +74,18 @@ func runApp(cmd *cobra.Command, args []string) error {
 
 	fmt.Println()
 	fmt.Println(time.Now().Format("Mon Jan 2 15:04:05 MST 2006"))
+
+	return nil
+}
+
+func ensureLocalProcessFolderExists () error {
+	validFolder, _ := fileops.ValidMachineFolder(processFolder)
+
+	if !validFolder {
+		if err := os.Mkdir(processFolder, os.ModePerm); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

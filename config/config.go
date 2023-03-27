@@ -7,7 +7,7 @@ import (
 )
 
 //TODO- have config create processed folder if doesn't exist
-const workingFolder string = "./processed"
+const workingFolder string = "./process"
 
 type Config struct {
 	DestinationFolder   string `json:"destinationFolder"`
