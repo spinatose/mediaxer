@@ -6,7 +6,8 @@ import (
 	"os"
 )
 
-const workingFolder string = "~/tmp"
+//TODO- have config create processed folder if doesn't exist
+const workingFolder string = "./process"
 
 type Config struct {
 	DestinationFolder   string `json:"destinationFolder"`
@@ -47,7 +48,7 @@ func LoadConfigFromJsonFile(configFile string) (*Config, error) {
 
 func NewConfig() *Config {
 	return &Config{
-		DestinationFolder:   workingFolder,
+		DestinationFolder:   "",
 		FileExtensionFilter: "*.txt",
 		MoveSourceFiles:     true,
 		ResultFolderPattern: "YYYY_MMDD",
