@@ -108,6 +108,12 @@ func (config *Config) ToString() string {
 	returnString += fmt.Sprintf("\tMoveSourceFiles:\t\t%v\n", config.MoveSourceFiles)
 	returnString += fmt.Sprintf("\tResultFolderPattern:\t\t%s\n", config.ResultFolderPattern)
 	returnString += fmt.Sprintf("\tSourceFolder:\t\t\t%s\n", config.SourceFolder)
+	returnString += "\tLoggers:\n"
+
+	for outputInc, logOut := range config.Logger.Outputs {
+		returnString += fmt.Sprintf("\t\tOutput%v:\n", outputInc + 1)
+		returnString += fmt.Sprintf("\t\t\tLogType:\t%s\n", logOut.LogType)
+	}
 
 	return returnString 
 }
