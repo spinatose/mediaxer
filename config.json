@@ -1,1 +1,35 @@
-{"destinationFolder":"","fileExtensionFilter":"*.txt","moveSourceFiles":true,"resultFolderPattern":"YYYY_MMDD","sourceFolder":"./process"}
+{
+    "destinationFolder": "",
+    "fileExtensionFilter": "*.txt",
+    "logger": {
+        "outputs": [
+            {
+                "logtype": "console",
+                "options": {
+                    "colorize": true,
+                    "level": "debug",
+                    "format": "",
+                    "config": {
+                        "path": "",
+                        "filename": ""
+                    }
+                }
+            },
+            {
+                "logtype": "file",
+                "options": {
+                    "colorize": false,
+                    "level": "info",
+                    "format": "json",
+                    "config": {
+                        "path": "./process",
+                        "filename": "session.log"
+                    }
+                }
+            }
+        ]
+    },
+    "moveSourceFiles": true,
+    "resultFolderPattern": "YYYY_MMDD",
+    "sourceFolder": "./process"
+}

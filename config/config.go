@@ -12,9 +12,31 @@ const workingFolder string = "./process"
 type Config struct {
 	DestinationFolder   string `json:"destinationFolder"`
 	FileExtensionFilter string `json:"fileExtensionFilter"`
+	Logger 				Logger `json:"logger"`
 	MoveSourceFiles     bool   `json:"moveSourceFiles"`
 	ResultFolderPattern string `json:"resultFolderPattern"`
 	SourceFolder        string `json:"sourceFolder"`
+}
+
+type Logger struct {
+	Outputs []LogOutput `json:"outputs"` 
+}
+
+type LogOutputConfig struct {
+	Colorize bool            `json:"colorize"`
+	Level    string          `json:"level"`
+	Format   string          `json:"format"`
+	Config   LogOptionConfig `json:"config"`
+}
+
+type LogOptionConfig struct {
+	Path     string            `json:"path"`
+	FileName string            `json:"filename"`
+}
+
+type LogOutput struct {
+	LogType string          `json:"logtype"`
+	Options LogOutputConfig `json:"options"`
 }
 
 func CreateConfigFile(config *Config, configFile string) error {
@@ -50,6 +72,29 @@ func NewConfig() *Config {
 	return &Config{
 		DestinationFolder:   "",
 		FileExtensionFilter: "*.txt",
+		Logger: Logger{ 
+			Outputs: []LogOutput {
+				{ 
+					LogType: "console",
+					Options: LogOutputConfig{
+						Colorize: true,
+						Level: "debug",
+					},
+				},
+				{
+					LogType: "file",
+					Options: LogOutputConfig{
+						Colorize: false,
+						Config: LogOptionConfig {
+							FileName: "session.log",
+							Path: "./process",
+						},
+						Format: "json",
+						Level: "info",
+					},
+				},
+			},
+		},
 		MoveSourceFiles:     true,
 		ResultFolderPattern: "YYYY_MMDD",
 		SourceFolder:        workingFolder,
