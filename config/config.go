@@ -113,6 +113,13 @@ func (config *Config) ToString() string {
 	for outputInc, logOut := range config.Logger.Outputs {
 		returnString += fmt.Sprintf("\t\tOutput%v:\n", outputInc + 1)
 		returnString += fmt.Sprintf("\t\t\tLogType:\t%s\n", logOut.LogType)
+		returnString += "\t\t\tOptions:\n"
+		returnString += fmt.Sprintf("\t\t\t\tColorize:\t%v\n", logOut.Options.Colorize)
+		returnString += fmt.Sprintf("\t\t\t\tFormat:\t\t%v\n", logOut.Options.Format)
+		returnString += fmt.Sprintf("\t\t\t\tLevel:\t\t%v\n", logOut.Options.Level)
+		returnString += "\t\t\t\tConfig:\n"
+		returnString += fmt.Sprintf("\t\t\t\t\tFileName:\t%v\n", logOut.Options.Config.FileName)
+		returnString += fmt.Sprintf("\t\t\t\t\tPath:\t\t%v\n", logOut.Options.Config.Path)
 	}
 
 	return returnString 
