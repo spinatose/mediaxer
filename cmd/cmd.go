@@ -63,7 +63,7 @@ func runApp(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	logger := logging.NewLogger(config.Logger.Outputs[0])
+	logger := logging.NewLogger(config.Logger.Outputs)
 	logger.Info("GOT HERE BOY!!")
 
 

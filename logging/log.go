@@ -6,23 +6,28 @@ import (
 )
 
 type Logger struct {
-	Level 	string 
-	logger  *log.Entry
+	loggers  []*log.Entry
 }
 
-func NewLogger(config config.LogOutput) *Logger {
-	logger := log.WithFields(log.Fields{
-		"animal": "walrus",
-		"number": 1,
-		"size":   10,
-	})
-
-	return &Logger{
-		Level: config.Options.Level,
-		logger: logger,
+func NewLogger(configs []config.LogOutput) *Logger {
+	globalLogger := &Logger{
+		loggers: nil,
 	}
+	
+	for _, lconfig := range configs {
+		logger := log.WithFields(log.Fields{
+			"application": "mediaxer",
+			"level": lconfig.Options.Level,
+		})
+		
+		globalLogger.loggers = append(globalLogger.loggers, logger)
+	}
+
+	return globalLogger
 }
 
 func (l *Logger) Info(args interface{}) {
-	l.logger.Info(args)
+	for _, logger := range l.loggers {
+		logger.Info(args)
+	}
 }
