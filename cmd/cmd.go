@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	configuration "spinatose.com/mediaxer/config"
 	"spinatose.com/mediaxer/fileops"
+	"spinatose.com/mediaxer/logging"
 )
 
 // Configuration file
@@ -46,12 +46,6 @@ func runApp(cmd *cobra.Command, args []string) error {
 	fmt.Println("¡Bienvenido a mediAxer - organizador de archivos!")
 	fmt.Println()
 
-	log.WithFields(log.Fields{
-		"animal": "walrus",
-		"number": 1,
-		"size":   10,
-	}).Info("A walrus appears")
-
 	// Check for local processed folder, if not exists- create
 	err := ensureLocalProcessFolderExists()
 	if err != nil {
@@ -68,6 +62,10 @@ func runApp(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	logger := logging.NewLogger(config.Logger.Outputs[0])
+	logger.Info("GOT HERE BOY!!")
+
 
 	err = resolveAppArgsConfig(config, sourceFolder, destFolder)
 	if err != nil {
