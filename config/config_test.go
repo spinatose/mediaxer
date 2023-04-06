@@ -16,7 +16,7 @@ func TestNewConfig(t *testing.T) {
 		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for MoveSourcefiles: %v", config.MoveSourceFiles))
 	}
 
-	if config.DestinationFolder != "~/tmp" {
+	if config.DestinationFolder != "" {
 		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for DestinationFolder: %s", config.DestinationFolder))
 	}
 	
@@ -28,7 +28,7 @@ func TestNewConfig(t *testing.T) {
 		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for ResultFolderPattern: %s", config.ResultFolderPattern))
 	}
 
-	if config.SourceFolder != "~/tmp" {
+	if config.SourceFolder != "./process" {
 		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for SourceFolder: %s", config.SourceFolder))
 	}
 }
