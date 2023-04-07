@@ -1,8 +1,24 @@
 package logging
 
 import (
+	"fmt"
 	"testing"
+	
+	configuration "spinatose.com/mediaxer/config"
 )
+
+func TestNewLogger(t *testing.T) {
+	// ARRANGE
+	config := configuration.NewConfig()
+
+	// ACT 
+	globalLogger := NewLogger(config.Logger.Outputs)
+
+	// ASSERT
+	if len(globalLogger.loggers) != 2 {
+		t.Error(fmt.Sprintf("TestNewLogger: failed to new up appropriate default global logger- wrong number of loggers : %d", len(globalLogger.loggers)))
+	}
+}
 
 func TestParseLogLevel(t *testing.T) {
 	// ARRANGE

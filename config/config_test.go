@@ -10,8 +10,13 @@ const configFile string = "testConfig.json"
 
 // Return new config object pointer with config defaults.
 func TestNewConfig(t *testing.T) {
-	config := NewConfig()
+	// ARRANGE
+	var config *Config
+	
+	// ACT
+	config = NewConfig()
 
+	// ASSERT
 	if !config.MoveSourceFiles {
 		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for MoveSourcefiles: %v", config.MoveSourceFiles))
 	}
@@ -34,24 +39,33 @@ func TestNewConfig(t *testing.T) {
 }
 
 func TestCreateConfigFile(t *testing.T) {
-	config := NewConfig()
+	// ARRANGE
+	var config *Config
+	config = NewConfig()
+
+	// ACT
 	err := createConfigFileAndCleanup(t, config, configFile)
 
+	// ASSERT
 	if err != nil {
 		t.Error(fmt.Sprintf("TestCreateConfigFile: failed to create config file [%s]- error: %s", configFile, err.Error()))
 	}
 }
 
 func TestLoadConfigFromJsonFile(t *testing.T) {
-	config := NewConfig()
+	// ARRANGE
+	var config *Config
+	config = NewConfig()
 	config.SourceFolder = "spiny"
 
 	if err := createConfigFileAndCleanup(t, config, configFile); err != nil {
 		t.Error(fmt.Sprintf("TestLoadConfigFromJsonFile: unable to get new config for test- error: %s", err.Error()))
 	}
 
+	// ACT
 	newConfig, err := LoadConfigFromJsonFile(configFile)
 
+	// ASSERT
 	if err != nil {
 		t.Error(fmt.Sprintf("TestLoadConfigFromJsonFile: failed to load config file [%s]- error: %s", configFile, err.Error()))
 	}
