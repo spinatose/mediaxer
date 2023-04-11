@@ -7,6 +7,25 @@ import (
 	configuration "spinatose.com/mediaxer/config"
 )
 
+func TestMergeFieldMaps(t *testing.T) {
+	// ARRANGE 
+	first := make(map[string]interface{}, 2)
+	first["cat1"] = "fluffy"
+	first["cat2"] = "gordo"
+	
+	second := make(map[string]interface{}, 2)
+	second["perro1"] = "lobo"
+	second["perro2"] = "brownie"
+
+	// ACT
+	third := mergeFieldMaps(first, second)
+
+	// ASSERT
+	if len(third) != 4 {
+		t.Error(fmt.Sprintf("TestMergeFieldMaps: failed to concatenate second map to first- combined length : %v", len(third)))
+	}
+}
+
 func TestNewLogger(t *testing.T) {
 	// ARRANGE
 	config := configuration.NewConfig()

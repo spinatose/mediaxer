@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ik5/rotatefilehook"
 	log "github.com/sirupsen/logrus"
 	"spinatose.com/mediaxer/config"
 )
@@ -26,6 +27,8 @@ const (
 	Panic
 )
 
+var metaData map[string]interface{}
+
 type logger struct {
 	logEntry *log.Entry
 	logLevel LogLevel
@@ -41,6 +44,8 @@ type Logger struct {
 // example: console - info and above only, file - trace and above - or whatever is
 // desired. 
 func NewLogger(configs []config.LogOutput) *Logger {
+	metaData = log.Fields{	"application": "mediaxer" }
+
 	globalLogger := &Logger{
 		loggers: nil,
 	}
@@ -72,15 +77,38 @@ func NewLogger(configs []config.LogOutput) *Logger {
 			}
 		}
 
-		logEntry := log.WithFields(log.Fields{
-			"application": "mediaxer",
+		logFields := mergeFieldMaps(metaData, log.Fields{
 			"level":       lconfig.Options.Level,
 			"loggerId":    i,
 			"output":      lconfig.LogType,
 		})
 
+		// Set up file logger
+		if fileOutFound {
+			fileHook, err := setupFileLogger(lconfig)
+			
+			if err != nil {
+				fmt.Printf("Unable to setup file logger, skipping... error: %v\n", err)
+				continue
+			}
+
+			log.AddHook(fileHook)
+		}
+
+		// Set up console logger
+		if consoleOutFound {
+			log.SetOutput(os.Stdout)
+			log.SetFormatter(&log.TextFormatter{
+				ForceColors:     lconfig.Options.Colorize,
+				FullTimestamp:   true,
+				//TimestampFormat: time.RFC822,
+			})
+		}
+
+		logEntry := log.WithFields(logFields)
+
 		// Temporarily set log output to terminal
-		logEntry.Logger.Out = os.Stdout
+		//logEntry.Logger.Out = os.Stdout
 
 		// Set log level of log entry to Trace so that it would write everything, but actual LogLevel
 		// will be controlled by Global Logger.
@@ -95,6 +123,28 @@ func NewLogger(configs []config.LogOutput) *Logger {
 	}
 
 	return globalLogger
+}
+
+func mergeFieldMaps(firstFields, secondFields map[string]interface{}) map[string]interface{} {
+	for k, v := range secondFields {
+		firstFields[k] = v
+	}
+	return firstFields
+}
+
+
+func setupFileLogger(config config.LogOutput) (log.Hook, error) {
+	// will have to test for backslash on path 
+	return rotatefilehook.NewRotateFileHook(rotatefilehook.RotateFileConfig{
+		Filename:   config.Options.Config.Path + "/" + config.Options.Config.FileName,
+		MaxSize:    50, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28, //days
+		// Level:      logLevel,
+		// Formatter: &logrus.JSONFormatter{
+		// 	TimestampFormat: time.RFC822,
+		// },
+	})
 }
 
 // Writes entries for loggers based on their log level setting and the 
