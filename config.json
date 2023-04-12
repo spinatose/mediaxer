@@ -23,7 +23,7 @@
                     "format": "json",
                     "config": {
                         "path": "./process",
-                        "filename": "session.log"
+                        "filename": "run.log"
                     }
                 }
             }

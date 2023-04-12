@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/ik5/rotatefilehook"
 	log "github.com/sirupsen/logrus"
@@ -45,6 +46,10 @@ type Logger struct {
 // desired. 
 func NewLogger(configs []config.LogOutput) *Logger {
 	metaData = log.Fields{	"application": "mediaxer" }
+
+	// Set log level of log entry to Trace so that it would write everything, but actual LogLevel
+	// will be controlled by Global Logger.
+	log.SetLevel(log.TraceLevel)
 
 	globalLogger := &Logger{
 		loggers: nil,
@@ -110,10 +115,6 @@ func NewLogger(configs []config.LogOutput) *Logger {
 		// Temporarily set log output to terminal
 		//logEntry.Logger.Out = os.Stdout
 
-		// Set log level of log entry to Trace so that it would write everything, but actual LogLevel
-		// will be controlled by Global Logger.
-		log.SetLevel(log.TraceLevel)
-
 		logger := &logger{
 			logEntry: logEntry,
 			logLevel: parseLogLevel(lconfig.Options.Level),
@@ -140,10 +141,10 @@ func setupFileLogger(config config.LogOutput) (log.Hook, error) {
 		MaxSize:    50, // megabytes
 		MaxBackups: 3,
 		MaxAge:     28, //days
-		// Level:      logLevel,
-		// Formatter: &logrus.JSONFormatter{
-		// 	TimestampFormat: time.RFC822,
-		// },
+		Level: log.DebugLevel,
+		Formatter: &log.JSONFormatter{
+			TimestampFormat: time.RFC822,
+		},
 	})
 }
 
