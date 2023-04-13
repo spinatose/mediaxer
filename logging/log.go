@@ -3,6 +3,7 @@ package logging
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -137,13 +138,13 @@ func mergeFieldMaps(firstFields, secondFields map[string]interface{}) map[string
 func setupFileLogger(config config.LogOutput) (log.Hook, error) {
 	// will have to test for backslash on path 
 	return rotatefilehook.NewRotateFileHook(rotatefilehook.RotateFileConfig{
-		Filename:   config.Options.Config.Path + "/" + config.Options.Config.FileName,
+		Filename:   path.Join(config.Options.Config.Path, config.Options.Config.FileName),
 		MaxSize:    50, // megabytes
 		MaxBackups: 3,
 		MaxAge:     28, //days
 		Level: log.DebugLevel,
 		Formatter: &log.JSONFormatter{
-			TimestampFormat: time.RFC822,
+			TimestampFormat: time.RFC3339,
 		},
 	})
 }
