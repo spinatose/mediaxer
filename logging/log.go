@@ -29,15 +29,16 @@ const (
 	Panic
 )
 
-var metaData map[string]interface{}
+type Fields map[string]interface{}
 
 type logger struct {
 	logEntry *log.Entry
-	logLevel LogLevel
 }
 
 type Logger struct {
-	loggers []*logger
+	LogLevel  LogLevel
+	logWriter *logger
+	metaData  Fields 
 }
 
 // Returns a logger constructed from supplied configuration. Only one of each type 
@@ -45,21 +46,23 @@ type Logger struct {
 // Logger outputs can have different logging levels that they will log for- for 
 // example: console - info and above only, file - trace and above - or whatever is
 // desired. 
-func NewLogger(configs []config.LogOutput) *Logger {
-	metaData = log.Fields{	"application": "mediaxer" }
-
+func NewLogger(logConfig config.Logger, fields Fields) *Logger {
 	// Set log level of log entry to Trace so that it would write everything, but actual LogLevel
 	// will be controlled by Global Logger.
 	log.SetLevel(log.TraceLevel)
 
 	globalLogger := &Logger{
-		loggers: nil,
+		LogLevel: parseLogLevel(logConfig.Level),
+		logWriter: nil,
+		metaData: fields,
 	}
 
 	// need to check for more than one of each output type
 	consoleOutFound, fileOutFound := false, false 
+	var fileConfig    config.LogOutput
+	var consoleConfig config.LogOutput
 
-	for i, lconfig := range configs {
+	for _, lconfig := range logConfig.Outputs {
 		// check output type before adding to global loggers
 		outType := lconfig.LogType 
 		outType = strings.ToLower(strings.Trim(outType, " "))
@@ -76,64 +79,53 @@ func NewLogger(configs []config.LogOutput) *Logger {
 			}
 
 			if outType == "file" && !fileOutFound {
+				fileConfig = lconfig 
 				fileOutFound = true 
 			} else if outType == "file" && fileOutFound {
 				fmt.Println("WARN: an output type has already been found for 'file' out- skipping output")	
 				continue 
 			}
 		}
+		
+	}
 
-		logFields := mergeFieldMaps(metaData, log.Fields{
-			"level":       lconfig.Options.Level,
-			"loggerId":    i,
-			"output":      lconfig.LogType,
-		})
-
-		// Set up file logger
-		if fileOutFound {
-			fileHook, err := setupFileLogger(lconfig)
-			
-			if err != nil {
-				fmt.Printf("Unable to setup file logger, skipping... error: %v\n", err)
-				continue
-			}
-
+	// Set up file logger
+	if fileOutFound {
+		fileHook, err := setupFileLogger(fileConfig)
+		
+		if err != nil {
+			fmt.Printf("Unable to setup file logger, skipping... error: %v\n", err)
+		} else {
 			log.AddHook(fileHook)
 		}
-
-		// Set up console logger
-		if consoleOutFound {
-			log.SetOutput(os.Stdout)
-			log.SetFormatter(&log.TextFormatter{
-				ForceColors:     lconfig.Options.Colorize,
-				FullTimestamp:   true,
-				//TimestampFormat: time.RFC822,
-			})
-		}
-
-		logEntry := log.WithFields(logFields)
-
-		// Temporarily set log output to terminal
-		//logEntry.Logger.Out = os.Stdout
-
-		logger := &logger{
-			logEntry: logEntry,
-			logLevel: parseLogLevel(lconfig.Options.Level),
-		}
-
-		globalLogger.loggers = append(globalLogger.loggers, logger)
 	}
+
+	// Set up console logger
+	if consoleOutFound {
+		log.SetOutput(os.Stdout)
+		log.SetFormatter(&log.TextFormatter{
+			ForceColors:     consoleConfig.Options.Colorize,
+			FullTimestamp:   true,
+			//TimestampFormat: time.RFC822,
+		})
+	}
+
+	logEntry := log.WithFields(log.Fields(globalLogger.metaData))
+	logger := &logger{
+		logEntry: logEntry,
+	}
+
+	globalLogger.logWriter = logger
 
 	return globalLogger
 }
 
-func mergeFieldMaps(firstFields, secondFields map[string]interface{}) map[string]interface{} {
+func MergeFieldMaps(firstFields, secondFields map[string]interface{}) map[string]interface{} {
 	for k, v := range secondFields {
 		firstFields[k] = v
 	}
 	return firstFields
 }
-
 
 func setupFileLogger(config config.LogOutput) (log.Hook, error) {
 	// will have to test for backslash on path 
@@ -151,54 +143,80 @@ func setupFileLogger(config config.LogOutput) (log.Hook, error) {
 
 // Writes entries for loggers based on their log level setting and the 
 // log level of the individual requested write entry. 
-func (l *Logger) writeEntry(methodLogLevel LogLevel, args interface{}){
-	for _, logger := range l.loggers {
-		if logger.logLevel >= methodLogLevel {
-			switch(methodLogLevel){
-			case Trace:
-				logger.logEntry.Trace(args)
-			case Debug:
-				logger.logEntry.Debug(args)
-			case Info:
-				logger.logEntry.Info(args)
-			case Warn:
-				logger.logEntry.Warn(args)
-			case Error:
-				logger.logEntry.Error(args)
-			case Fatal:
-				logger.logEntry.Fatal(args)
-			case Panic:
-				logger.logEntry.Panic(args)
+func (l *Logger) writeEntry(methodLogLevel LogLevel, args ...interface{}){
+	if len(args) > 0 {
+		var fields Fields = nil
+		msg := args[0]
+
+		if len(args) > 1 {
+			fields =  Fields(args[1].(Fields))
+		}
+
+		if  l.LogLevel <= methodLogLevel {
+			if fields != nil {
+				switch(methodLogLevel){
+				case Trace:
+					l.logWriter.logEntry.WithFields(log.Fields(fields)).Trace(msg)
+				case Debug:
+					l.logWriter.logEntry.WithFields(log.Fields(fields)).Debug(msg)
+				case Info:
+					l.logWriter.logEntry.WithFields(log.Fields(fields)).Info(msg)
+				case Warn:
+					l.logWriter.logEntry.WithFields(log.Fields(fields)).Warn(msg)
+				case Error:
+					l.logWriter.logEntry.WithFields(log.Fields(fields)).Error(msg)
+				case Fatal:
+					l.logWriter.logEntry.WithFields(log.Fields(fields)).Fatal(msg)
+				case Panic:
+					l.logWriter.logEntry.WithFields(log.Fields(fields)).Panic(msg)
+				}
+			} else {
+				switch(methodLogLevel){
+				case Trace:
+					l.logWriter.logEntry.Trace(msg)
+				case Debug:
+					l.logWriter.logEntry.Debug(msg)
+				case Info:
+					l.logWriter.logEntry.Info(msg)
+				case Warn:
+					l.logWriter.logEntry.Warn(msg)
+				case Error:
+					l.logWriter.logEntry.Error(msg)
+				case Fatal:
+					l.logWriter.logEntry.Fatal(msg)
+				case Panic:
+					l.logWriter.logEntry.Panic(msg)
+				}
 			}
 		}
 	}
 }
 
-func (l *Logger) Trace(args interface{}) {
+func (l *Logger) Trace(args ...interface{}) {
 	l.writeEntry(Trace, args)
 }
 
-func (l *Logger) Debug(args interface{}) {
+func (l *Logger) Debug(args ...interface{}) {
 	l.writeEntry(Debug, args)
 }
 
-func (l *Logger) Info(args interface{}) {
+func (l *Logger) Info(args ...interface{}) {
 	l.writeEntry(Info, args)
 }
 
-func (l *Logger) Warn(args interface{}) {
+func (l *Logger) Warn(args ...interface{}) {
 	l.writeEntry(Warn, args)
 }
 
-func (l *Logger) Error(args interface{}) {
+func (l *Logger) Error(args ...interface{}) {
 	l.writeEntry(Error, args)
 }
 
-func (l *Logger) Fatal(args interface{}) {
+func (l *Logger) Fatal(args ...interface{}) {
 	l.writeEntry(Fatal, args)
 }
 
-func (l *Logger) Panic(args interface{}) {
+func (l *Logger) Panic(args ...interface{}) {
 	l.writeEntry(Panic, args)
 }
 

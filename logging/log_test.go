@@ -18,7 +18,7 @@ func TestMergeFieldMaps(t *testing.T) {
 	second["perro2"] = "brownie"
 
 	// ACT
-	third := mergeFieldMaps(first, second)
+	third := MergeFieldMaps(first, second)
 
 	// ASSERT
 	if len(third) != 4 {
@@ -31,11 +31,11 @@ func TestNewLogger(t *testing.T) {
 	config := configuration.NewConfig()
 
 	// ACT 
-	globalLogger := NewLogger(config.Logger.Outputs)
+	globalLogger := NewLogger(config.Logger, nil)
 
 	// ASSERT
-	if len(globalLogger.loggers) != 2 {
-		t.Error(fmt.Sprintf("TestNewLogger: failed to new up appropriate default global logger- wrong number of loggers : %d", len(globalLogger.loggers)))
+	if globalLogger.LogLevel != Debug  {
+		t.Error(fmt.Sprintf("TestNewLogger: failed to new up appropriate default global logger- wrong default LogLevel : %v", globalLogger.LogLevel))
 	}
 }
 

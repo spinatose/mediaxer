@@ -19,12 +19,12 @@ type Config struct {
 }
 
 type Logger struct {
+	Level    string          `json:"level"`	
 	Outputs []LogOutput `json:"outputs"` 
 }
 
 type LogOutputConfig struct {
 	Colorize bool            `json:"colorize"`
-	Level    string          `json:"level"`
 	Format   string          `json:"format"`
 	Config   LogOptionConfig `json:"config"`
 }
@@ -73,12 +73,12 @@ func NewConfig() *Config {
 		DestinationFolder:   "",
 		FileExtensionFilter: "*.txt",
 		Logger: Logger{ 
+			Level: "debug",
 			Outputs: []LogOutput {
 				{ 
 					LogType: "console",
 					Options: LogOutputConfig{
 						Colorize: true,
-						Level: "debug",
 					},
 				},
 				{
@@ -86,11 +86,10 @@ func NewConfig() *Config {
 					Options: LogOutputConfig{
 						Colorize: false,
 						Config: LogOptionConfig {
-							FileName: "session.log",
+							FileName: "run.log",
 							Path: "./process",
 						},
 						Format: "json",
-						Level: "info",
 					},
 				},
 			},
@@ -109,6 +108,7 @@ func (config *Config) ToString() string {
 	returnString += fmt.Sprintf("\tResultFolderPattern:\t\t%s\n", config.ResultFolderPattern)
 	returnString += fmt.Sprintf("\tSourceFolder:\t\t\t%s\n", config.SourceFolder)
 	returnString += "\tLoggers:\n"
+	returnString += fmt.Sprintf("\t\tLevel:\t\t%v\n", config.Logger.Level)
 
 	for outputInc, logOut := range config.Logger.Outputs {
 		returnString += fmt.Sprintf("\t\tOutput%v:\n", outputInc + 1)
@@ -116,7 +116,6 @@ func (config *Config) ToString() string {
 		returnString += "\t\t\tOptions:\n"
 		returnString += fmt.Sprintf("\t\t\t\tColorize:\t%v\n", logOut.Options.Colorize)
 		returnString += fmt.Sprintf("\t\t\t\tFormat:\t\t%v\n", logOut.Options.Format)
-		returnString += fmt.Sprintf("\t\t\t\tLevel:\t\t%v\n", logOut.Options.Level)
 		returnString += "\t\t\t\tConfig:\n"
 		returnString += fmt.Sprintf("\t\t\t\t\tFileName:\t%v\n", logOut.Options.Config.FileName)
 		returnString += fmt.Sprintf("\t\t\t\t\tPath:\t\t%v\n", logOut.Options.Config.Path)
