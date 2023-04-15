@@ -63,11 +63,11 @@ func runApp(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	logger := logging.NewLogger(config.Logger, logging.Fields{	"application": "mediaxer" })
+	logger := logging.NewLogger(config.Logger, logging.Fields{	"module": "cmd" })
 	logger.Trace("GOT HERE BOY!!")
 	logger.Info("trying with the info", logging.Fields{	"monkey": "rhesus" })
 	logger.Info("trying again with the info", logging.Fields{	"ape1": "chimp", "ape2": "gorilla" })
-	logger.Warn("one more with the info")
+	logger.Warn("one more with the info, no fields")
 
 	fmt.Println()
 

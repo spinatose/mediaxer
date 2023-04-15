@@ -152,41 +152,30 @@ func (l *Logger) writeEntry(methodLogLevel LogLevel, args ...interface{}){
 			fields =  Fields(args[1].(Fields))
 		}
 
+		var entry *log.Entry 
+
+		if fields != nil {
+			entry = l.logWriter.logEntry.WithFields(log.Fields(fields))
+		} else {
+			entry = l.logWriter.logEntry
+		}
+
 		if  l.LogLevel <= methodLogLevel {
-			if fields != nil {
-				switch(methodLogLevel){
-				case Trace:
-					l.logWriter.logEntry.WithFields(log.Fields(fields)).Trace(msg)
-				case Debug:
-					l.logWriter.logEntry.WithFields(log.Fields(fields)).Debug(msg)
-				case Info:
-					l.logWriter.logEntry.WithFields(log.Fields(fields)).Info(msg)
-				case Warn:
-					l.logWriter.logEntry.WithFields(log.Fields(fields)).Warn(msg)
-				case Error:
-					l.logWriter.logEntry.WithFields(log.Fields(fields)).Error(msg)
-				case Fatal:
-					l.logWriter.logEntry.WithFields(log.Fields(fields)).Fatal(msg)
-				case Panic:
-					l.logWriter.logEntry.WithFields(log.Fields(fields)).Panic(msg)
-				}
-			} else {
-				switch(methodLogLevel){
-				case Trace:
-					l.logWriter.logEntry.Trace(msg)
-				case Debug:
-					l.logWriter.logEntry.Debug(msg)
-				case Info:
-					l.logWriter.logEntry.Info(msg)
-				case Warn:
-					l.logWriter.logEntry.Warn(msg)
-				case Error:
-					l.logWriter.logEntry.Error(msg)
-				case Fatal:
-					l.logWriter.logEntry.Fatal(msg)
-				case Panic:
-					l.logWriter.logEntry.Panic(msg)
-				}
+			switch(methodLogLevel){
+			case Trace:
+				entry.Trace(msg)
+			case Debug:
+				entry.Debug(msg)
+			case Info:
+				entry.Info(msg)
+			case Warn:
+				entry.Warn(msg)
+			case Error:
+				entry.Error(msg)
+			case Fatal:
+				entry.Fatal(msg)
+			case Panic:
+				entry.Panic(msg)
 			}
 		}
 	}
@@ -245,63 +234,3 @@ func parseLogLevel(level string) LogLevel {
 
 	return Info
 }
-
-/*  snippet for logging to more than one output with different loglevels
-    I will limit to only one console output	and one file output
-
-	var logLevel = logrus.InfoLevel
-	if debug {
-		logLevel = logrus.DebugLevel
-	}
-
-	rotateFileHook, err := rotatefilehook.NewRotateFileHook(rotatefilehook.RotateFileConfig{
-		Filename:   "logs/console.log",
-		MaxSize:    50, // megabytes
-		MaxBackups: 3,
-		MaxAge:     28, //days
-		Level:      logLevel,
-		Formatter: &logrus.JSONFormatter{
-			TimestampFormat: time.RFC822,
-		},
-	})
-
-	if err != nil {
-		logrus.Fatalf("Failed to initialize file rotate hook: %v", err)
-	}
-
-	logrus.SetLevel(logLevel)
-	logrus.SetOutput(colorable.NewColorableStdout())
-	logrus.SetFormatter(&logrus.TextFormatter{
-		ForceColors:     true,
-		FullTimestamp:   true,
-		TimestampFormat: time.RFC822,
-	})
-	logrus.AddHook(rotateFileHook)
-*/
-
-/* snippet for using lumberjack to rotate a log file with different pruning mgmt
-
-import (
-  "github.com/ik5/rotatefilehook"
-)
-
-rotateFileHook, err := rotatefilehook.NewRotateFileHook(rotatefilehook.RotateFileConfig{
-    Filename: "logfile.log",
-    MaxSize: 5,
-    MaxBackups: 7,
-    MaxAge: 7,
-    Level: logrus.LevelDebug,
-    Formatter: logrus.TextFormatter,
-})
-if err != nil {
-  panic(err)
-}
-
-log.Hooks.Add(rotateFileHook)
-
-err = rotateFileHook.Rotate() // To force rotation
-if err != nil {
-  panic(err)
-}
-
-*/
