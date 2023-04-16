@@ -9,13 +9,14 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"spinatose.com/mediaxer/config"
+	configuration "spinatose.com/mediaxer/config"
 	"spinatose.com/mediaxer/fileops"
+	"spinatose.com/mediaxer/logging"
 )
 
 // Configuration file
 const (
-	configFile string = "config.json"
+	configFile    string = "config.json"
 	processFolder string = "./process"
 )
 
@@ -43,7 +44,7 @@ func init() {
 func runApp(cmd *cobra.Command, args []string) error {
 	fmt.Println("      Welcome to mediAxer - file organizer!")
 	fmt.Println("¡Bienvenido a mediAxer - organizador de archivos!")
-	fmt.Println() ;
+	fmt.Println()
 
 	// Check for local processed folder, if not exists- create
 	err := ensureLocalProcessFolderExists()
@@ -52,16 +53,23 @@ func runApp(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-
 	// Get any passed override arguments
 	sourceFolder := viper.GetString("source")
 	destFolder := viper.GetString("dest")
-	
+
 	// Get config or create default and load it.
 	config, err := getAppConfig()
 	if err != nil {
 		return err
 	}
+
+	logger := logging.NewLogger(config.Logger, logging.Fields{	"module": "cmd" })
+	logger.Trace("GOT HERE BOY!!")
+	logger.Info("trying with the info", logging.Fields{	"monkey": "rhesus" })
+	logger.Info("trying again with the info", logging.Fields{	"ape1": "chimp", "ape2": "gorilla" })
+	logger.Warn("one more with the info, no fields")
+
+	fmt.Println()
 
 	err = resolveAppArgsConfig(config, sourceFolder, destFolder)
 	if err != nil {
@@ -69,6 +77,7 @@ func runApp(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// TODO: Use logging to have this only show in debug loglevel
 	fmt.Print("configuration loaded...\n")
 	fmt.Println(config.ToString())
 
@@ -78,7 +87,7 @@ func runApp(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func ensureLocalProcessFolderExists () error {
+func ensureLocalProcessFolderExists() error {
 	validFolder, _ := fileops.ValidMachineFolder(processFolder)
 
 	if !validFolder {
@@ -116,28 +125,28 @@ func getAppConfig() (*configuration.Config, error) {
 
 func isArgProvided(name string) bool {
 	name = strings.ToUpper(name)
-    found := false
+	found := false
 	args := os.Args[1:]
-    
+
 	for _, arg := range args {
 		if strings.Contains(strings.ToUpper(arg), name) {
-			found = true 
+			found = true
 		}
 	}
 
-    return found
+	return found
 }
 
-func resolveAppArgsConfig (config *configuration.Config, sourceFolder string, destFolder string) error {
+func resolveAppArgsConfig(config *configuration.Config, sourceFolder string, destFolder string) error {
 	// Override config settings with passed in arguments
 	if isArgProvided("--source") || isArgProvided("-s") {
 		config.SourceFolder = sourceFolder
 	}
-	
+
 	if isArgProvided("--dest") || isArgProvided("-d") {
 		config.DestinationFolder = destFolder
 	}
-	
+
 	if config.SourceFolder == "" {
 		return errors.New("an accessible, valid source folder must be supplied--  type '-help' for usage")
 	} else {
@@ -146,8 +155,8 @@ func resolveAppArgsConfig (config *configuration.Config, sourceFolder string, de
 		if validFolder {
 			fmt.Printf("SourceFolder [%s] is a valid folder\n", config.SourceFolder)
 		} else {
-			return fmt.Errorf("sourcefolder [%s] not a valid folder- error: %s", config.SourceFolder, err.Error()) 
-		} 
+			return fmt.Errorf("sourcefolder [%s] not a valid folder- error: %s", config.SourceFolder, err.Error())
+		}
 	}
 
 	if config.DestinationFolder == "" {
@@ -158,8 +167,8 @@ func resolveAppArgsConfig (config *configuration.Config, sourceFolder string, de
 		if validFolder {
 			fmt.Printf("DestinationFolder [%s] is a valid folder\n", config.DestinationFolder)
 		} else {
-			return fmt.Errorf("destinationfolder [%s] not a valid folder- error: %s", config.DestinationFolder, err.Error()) 
-		} 
+			return fmt.Errorf("destinationfolder [%s] not a valid folder- error: %s", config.DestinationFolder, err.Error())
+		}
 	}
 
 	return nil
