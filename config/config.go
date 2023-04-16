@@ -89,7 +89,7 @@ func NewConfig() *Config {
 							FileName: "run.log",
 							Path: "./process",
 						},
-						Format: "json",
+						Format: "text",
 					},
 				},
 			},

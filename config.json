@@ -16,7 +16,7 @@
         "logtype": "file",
         "options": {
           "colorize": false,
-          "format": "json",
+          "format": "text",
           "config": { "path": "./process", "filename": "run.log" }
         }
       }
