@@ -17,7 +17,7 @@
         "options": {
           "colorize": false,
           "format": "text",
-          "config": { "path": "./process", "filename": "run.log" }
+          "config": { "path": "./log", "filename": "run.log" }
         }
       }
     ]

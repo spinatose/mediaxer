@@ -84,6 +84,10 @@ func runApp(cmd *cobra.Command, args []string) error {
 	fmt.Println()
 	fmt.Println(time.Now().Format("Mon Jan 2 15:04:05 MST 2006"))
 
+	for _, thumb := range fileops.GetFileThumbnails(config.SourceFolder, nil) {
+		fmt.Println(thumb.Name)
+	}
+
 	return nil
 }
 
