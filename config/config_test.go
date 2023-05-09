@@ -25,6 +25,10 @@ func TestNewConfig(t *testing.T) {
 		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for DestinationFolder: %s", config.DestinationFolder))
 	}
 	
+	if config.ExcludeSubFolders != false {
+		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for ExcludeSubFolders: %v", config.ExcludeSubFolders))
+	}
+	
 	if config.FileExtensionFilter != "*.txt" {
 		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for FileExtensionFilter: %s", config.FileExtensionFilter))
 	}

@@ -1,5 +1,6 @@
 {
   "destinationFolder": "",
+  "excludeSubFolders": false,
   "fileExtensionFilter": "*.txt",
   "logger": {
     "level": "debug",

@@ -23,7 +23,7 @@ type Thumbnail struct {
 	Size        int64
 }
 
-func GetFileThumbnails(path string, thumbs []Thumbnail) []Thumbnail {
+func GetFileThumbnails(path string, thumbs []Thumbnail) ([]Thumbnail, error) {
 	files, err := ioutil.ReadDir(path)
 	
 	// init return slice if not created
@@ -32,13 +32,16 @@ func GetFileThumbnails(path string, thumbs []Thumbnail) []Thumbnail {
 	}
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	for _, file := range files {
 		filepath := path + "/" + file.Name()
 		if file.IsDir() {
-			thumbs = GetFileThumbnails(filepath, thumbs)
+			thumbs, err = GetFileThumbnails(filepath, thumbs)
+			if (err != nil) {
+				return nil, err
+			}
 		} else {
 			//if strings.Contains(file.Name(), ".txt") {
 			thumbs = append(thumbs, Thumbnail{
@@ -51,5 +54,5 @@ func GetFileThumbnails(path string, thumbs []Thumbnail) []Thumbnail {
 		}
 	}
 
-	return thumbs
+	return thumbs, err
 }

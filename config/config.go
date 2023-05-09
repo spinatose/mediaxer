@@ -11,6 +11,7 @@ const workingFolder string = "./process"
 
 type Config struct {
 	DestinationFolder   string `json:"destinationFolder"`
+	ExcludeSubFolders   bool   `json:"excludeSubFolders"`
 	FileExtensionFilter string `json:"fileExtensionFilter"`
 	Logger 				Logger `json:"logger"`
 	MoveSourceFiles     bool   `json:"moveSourceFiles"`
@@ -71,6 +72,7 @@ func LoadConfigFromJsonFile(configFile string) (*Config, error) {
 func NewConfig() *Config {
 	return &Config{
 		DestinationFolder:   "",
+		ExcludeSubFolders: false,
 		FileExtensionFilter: "*.txt",
 		Logger: Logger{ 
 			Level: "debug",
@@ -103,6 +105,7 @@ func NewConfig() *Config {
 func (config *Config) ToString() string {
 	returnString := "Configuration:\n"
 	returnString += fmt.Sprintf("\tDestinationFolder:\t\t%s\n", config.DestinationFolder)
+	returnString += fmt.Sprintf("\tExcludeSubFolders:\t\t%v\n", config.ExcludeSubFolders)
 	returnString += fmt.Sprintf("\tFileExtensionFilter:\t\t%s\n", config.FileExtensionFilter)
 	returnString += fmt.Sprintf("\tMoveSourceFiles:\t\t%v\n", config.MoveSourceFiles)
 	returnString += fmt.Sprintf("\tResultFolderPattern:\t\t%s\n", config.ResultFolderPattern)

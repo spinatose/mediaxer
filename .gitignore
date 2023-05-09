@@ -1,4 +1,5 @@
 log/*
 process/*
+tmp/*
 session.log
 .DS_Store
