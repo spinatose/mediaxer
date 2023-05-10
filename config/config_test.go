@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
@@ -18,27 +17,27 @@ func TestNewConfig(t *testing.T) {
 
 	// ASSERT
 	if !config.MoveSourceFiles {
-		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for MoveSourcefiles: %v", config.MoveSourceFiles))
+		t.Errorf("TestNewConfig: new configuration object returned with wrong value for MoveSourcefiles: %v", config.MoveSourceFiles)
 	}
 
 	if config.DestinationFolder != "" {
-		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for DestinationFolder: %s", config.DestinationFolder))
+		t.Errorf("TestNewConfig: new configuration object returned with wrong value for DestinationFolder: %s", config.DestinationFolder)
 	}
 	
 	if config.ExcludeSubFolders != false {
-		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for ExcludeSubFolders: %v", config.ExcludeSubFolders))
+		t.Errorf("TestNewConfig: new configuration object returned with wrong value for ExcludeSubFolders: %v", config.ExcludeSubFolders)
 	}
 	
 	if config.FileExtensionFilter != "*.txt" {
-		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for FileExtensionFilter: %s", config.FileExtensionFilter))
+		t.Errorf("TestNewConfig: new configuration object returned with wrong value for FileExtensionFilter: %s", config.FileExtensionFilter)
 	}
 
 	if config.ResultFolderPattern != "YYYY_MMDD" {
-		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for ResultFolderPattern: %s", config.ResultFolderPattern))
+		t.Errorf("TestNewConfig: new configuration object returned with wrong value for ResultFolderPattern: %s", config.ResultFolderPattern)
 	}
 
 	if config.SourceFolder != "./process" {
-		t.Error(fmt.Sprintf("TestNewConfig: new configuration object returned with wrong value for SourceFolder: %s", config.SourceFolder))
+		t.Errorf("TestNewConfig: new configuration object returned with wrong value for SourceFolder: %s", config.SourceFolder)
 	}
 }
 
@@ -52,7 +51,7 @@ func TestCreateConfigFile(t *testing.T) {
 
 	// ASSERT
 	if err != nil {
-		t.Error(fmt.Sprintf("TestCreateConfigFile: failed to create config file [%s]- error: %s", configFile, err.Error()))
+		t.Errorf("TestCreateConfigFile: failed to create config file [%s]- error: %s", configFile, err.Error())
 	}
 }
 
@@ -63,7 +62,7 @@ func TestLoadConfigFromJsonFile(t *testing.T) {
 	config.SourceFolder = "spiny"
 
 	if err := createConfigFileAndCleanup(t, config, configFile); err != nil {
-		t.Error(fmt.Sprintf("TestLoadConfigFromJsonFile: unable to get new config for test- error: %s", err.Error()))
+		t.Errorf("TestLoadConfigFromJsonFile: unable to get new config for test- error: %s", err.Error())
 	}
 
 	// ACT
@@ -71,12 +70,12 @@ func TestLoadConfigFromJsonFile(t *testing.T) {
 
 	// ASSERT
 	if err != nil {
-		t.Error(fmt.Sprintf("TestLoadConfigFromJsonFile: failed to load config file [%s]- error: %s", configFile, err.Error()))
+		t.Errorf("TestLoadConfigFromJsonFile: failed to load config file [%s]- error: %s", configFile, err.Error())
 	}
 
 	if newConfig.SourceFolder != config.SourceFolder {
-		t.Error(fmt.Sprintf("TestLoadConfigFromJsonFile: config file [%s] was not loaded properly- values don't correspond"+
-			"config to config object originally created for test", configFile))
+		t.Errorf("TestLoadConfigFromJsonFile: config file [%s] was not loaded properly- values don't correspond"+
+			"config to config object originally created for test", configFile)
 	}
 }
 

@@ -19,7 +19,7 @@ func ValidMachineFolder(folder string) (bool, error) {
 type Thumbnail struct {
 	CreatedDate time.Time
 	Name        string
-	OriginPth   string 
+	OriginPath   string 
 	Size        int64
 }
 
@@ -47,7 +47,7 @@ func GetFileThumbnails(path string, thumbs []Thumbnail) ([]Thumbnail, error) {
 			thumbs = append(thumbs, Thumbnail{
 				CreatedDate: file.ModTime(),
 				Name: file.Name(),
-				OriginPth: path,
+				OriginPath: path,
 				Size: file.Size(),
 			})
 			//}
