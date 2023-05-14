@@ -34,7 +34,7 @@ func init() {
 	fs := rootCmd.PersistentFlags()
 	fs.StringP("source", "s", "", "specify source folder")
 	fs.StringP("dest", "d", "", "specify destination folder")
-	//fs.BoolP("debug", "d", false, "enable debug profiling")
+	fs.BoolP("nodir", "n", false, "exclude subfolders")
 
 	if err := viper.BindPFlags(fs); err != nil {
 		panic(err)
@@ -56,6 +56,7 @@ func runApp(cmd *cobra.Command, args []string) error {
 	// Get any passed override arguments
 	sourceFolder := viper.GetString("source")
 	destFolder := viper.GetString("dest")
+	excludeSubFolders := viper.GetBool("nodir")
 
 	// Get config or create default and load it.
 	config, err := getAppConfig()
@@ -71,7 +72,7 @@ func runApp(cmd *cobra.Command, args []string) error {
 
 	fmt.Println()
 
-	err = resolveAppArgsConfig(config, sourceFolder, destFolder)
+	err = resolveAppArgsConfig(config, sourceFolder, destFolder, excludeSubFolders)
 	if err != nil {
 		fmt.Printf("Unable to validate/resolve settings loaded for applicaion- error: %s", err.Error())
 		return err
@@ -84,15 +85,13 @@ func runApp(cmd *cobra.Command, args []string) error {
 	fmt.Println()
 	fmt.Println(time.Now().Format("Mon Jan 2 15:04:05 MST 2006"))
 
-	thumbs, err := fileops.GetFileThumbnails(config.SourceFolder, nil)
+	thumbs, err := fileops.GetFileThumbnails(config.SourceFolder, !config.ExcludeSubFolders, nil)
 
 	if (err != nil)	{
 		return err 
 	}
 
-	for _, thumb := range thumbs {
-		fmt.Println(thumb.Name)
-	}
+	fmt.Println(thumbs.ToString())
 
 	return nil
 }
@@ -147,7 +146,7 @@ func isArgProvided(name string) bool {
 	return found
 }
 
-func resolveAppArgsConfig(config *configuration.Config, sourceFolder string, destFolder string) error {
+func resolveAppArgsConfig(config *configuration.Config, sourceFolder string, destFolder string, excludeSubFolders bool) error {
 	// Override config settings with passed in arguments
 	if isArgProvided("--source") || isArgProvided("-s") {
 		config.SourceFolder = sourceFolder
@@ -155,6 +154,10 @@ func resolveAppArgsConfig(config *configuration.Config, sourceFolder string, des
 
 	if isArgProvided("--dest") || isArgProvided("-d") {
 		config.DestinationFolder = destFolder
+	}
+
+	if isArgProvided("--nodir") || isArgProvided("-n") {
+		config.ExcludeSubFolders = excludeSubFolders
 	}
 
 	if config.SourceFolder == "" {
