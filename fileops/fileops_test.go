@@ -119,6 +119,28 @@ func TestGetFileThumbnails(t *testing.T) {
 	}
 }
 
+func TestGetCreatedDays(t *testing.T) {
+	// ARRANGE
+	err := createTempFilesAndCleanup(t, 4)
+	thumbs, err := GetFileThumbnails(tempFolder, false, nil)
+
+	if (err != nil) {
+		t.Errorf("TestGetCreatedDays unable to prepare test assets with folder [%s]- error: %s", tempFolder, err)
+	}
+
+	// ACT
+	days := thumbs.GetCreatedDays()
+
+	// ASSERT
+	if (len(days) != 1) {
+		t.Errorf("TestGetCreatedDays failed to retrieve days from thumbs representing folder [%s], expected 1 day- actual [%v]- error: %s", tempFolder, len(days), err)
+	}
+
+	if (days[0] != time.Now().Format(time.DateOnly)) {
+		t.Errorf("TestGetCreatedDays failed to retrieve days from thumbs representing folder [%s], wrong value for day expected [%s]- actual [%s]", tempFolder, time.Now().Format(time.DateOnly), days[0])
+	}
+}	
+
 func createTempFilesAndCleanup(t *testing.T, quantity int) error {
 	var err error = nil 
 

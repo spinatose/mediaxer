@@ -3,6 +3,8 @@ package fileops
 import (
 	"path"
 	"time"
+
+	"golang.org/x/exp/slices"
 )
 
 type Thumbnail struct {
@@ -38,4 +40,18 @@ func (thumbs *Thumbnails) ToString() string {
 	}
 
 	return returnString
+}
+
+func (thumbs *Thumbnails) GetCreatedDays() []string {
+	days := []string {}
+
+	for _, thumb := range thumbs.Items {
+		created := thumb.CreatedDate.Format(time.DateOnly)
+		idx := slices.IndexFunc(days, func(d string) bool { return d == created })
+		if (idx == -1) {
+			days = append(days, created)
+		}
+	}
+
+	return days 
 }

@@ -82,16 +82,27 @@ func runApp(cmd *cobra.Command, args []string) error {
 	fmt.Print("configuration loaded...\n")
 	fmt.Println(config.ToString())
 
+	
 	fmt.Println()
 	fmt.Println(time.Now().Format("Mon Jan 2 15:04:05 MST 2006"))
-
+	
 	thumbs, err := fileops.GetFileThumbnails(config.SourceFolder, !config.ExcludeSubFolders, nil)
-
+	
 	if (err != nil)	{
 		return err 
 	}
-
+	
 	fmt.Println(thumbs.ToString())
+	fmt.Println()
+
+	if len(thumbs.Items) > 0 {
+		fmt.Println() 
+		fmt.Println("Unique Days of Thumbnail Items")
+		createdDays := thumbs.GetCreatedDays()
+		for _, dv := range createdDays {
+			fmt.Printf("\t%s\n", dv)
+		}
+	}
 
 	return nil
 }
